@@ -1,0 +1,158 @@
+function getToken() {
+  return localStorage.getItem('token');
+}
+
+let territoryMap;
+let territoryLayerGroup;
+let currentUserId = null;
+
+function logout() {
+  localStorage.removeItem('token');
+  window.location.href = '/login';
+}
+
+async function loadUserProfile() {
+  try {
+    const response = await axios.get('/api/auth/profile', {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    });
+
+    const { user, stats } = response.data;
+    currentUserId = user?.id || null;
+    document.getElementById('total-distance').textContent = (stats.totalDistance || stats.total_distance || 0).toFixed(3);
+    document.getElementById('total-area').textContent = (stats.totalTerritoryArea || stats.total_territory_area || 0).toFixed(3);
+    document.getElementById('total-calories').textContent = stats.totalCalories || stats.total_calories || 0;
+  } catch (error) {
+    console.error('Error loading profile:', error);
+  }
+}
+
+async function loadRunHistory() {
+  try {
+    const response = await axios.get('/api/run/history/all', {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    });
+
+    const sessions = response.data.sessions;
+    const historyList = document.getElementById('history-list');
+
+    historyList.innerHTML = sessions.map(session => `
+      <div class="history-item">
+        <p><strong>Date:</strong> ${new Date(session.startTime || session.start_time).toLocaleString()}</p>
+        <p><strong>Distance:</strong> ${((session.totalDistance || session.total_distance || 0)).toFixed(2)} km</p>
+        <p><strong>Time:</strong> ${formatTime(session.totalTime || session.total_time || 0)}</p>
+        <p><strong>Calories:</strong> ${session.estimatedCalories || session.estimated_calories || 0}</p>
+        ${session.isClosedLoop ? `<p><strong>Territory Captured ✅</strong></p>` : ''}
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error('Error loading run history:', error);
+  }
+}
+
+function formatTime(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+}
+
+function startRunning() {
+  window.location.href = '/run';
+}
+
+function initializeTerritoryMap() {
+  territoryMap = L.map('territory-map').setView([23.8103, 90.4125], 12);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19,
+  }).addTo(territoryMap);
+
+  territoryLayerGroup = L.layerGroup().addTo(territoryMap);
+}
+
+function getTerritoryStyle(ownerId) {
+  const isOwnTerritory = currentUserId !== null && String(ownerId) === String(currentUserId);
+
+  return {
+    color: isOwnTerritory ? '#2ecc71' : '#e74c3c',
+    fillColor: isOwnTerritory ? '#2ecc71' : '#e74c3c',
+    fillOpacity: 0.35,
+    weight: 2,
+  };
+}
+
+async function loadTerritories() {
+  try {
+    const response = await axios.get('/api/territory/all');
+    const territories = response.data.territories || [];
+
+    territoryLayerGroup.clearLayers();
+
+    if (territories.length === 0) {
+      return;
+    }
+
+    const bounds = L.latLngBounds([]);
+
+    territories.forEach((territory) => {
+      const coords = territory.polygonCoords || territory.polygon_coords;
+      const ownerId = territory.userId?._id || territory.userId || territory.user_id;
+      const ownerName = territory.userId?.username || territory.username || 'Unknown';
+
+      if (!Array.isArray(coords) || coords.length < 3) {
+        return;
+      }
+
+      const polygon = L.polygon(coords, getTerritoryStyle(String(ownerId)))
+        .bindPopup(`
+          <div>
+            <p><strong>Owner:</strong> ${ownerName}</p>
+            <p><strong>Area:</strong> ${Number(territory.area || 0).toFixed(2)} m²</p>
+          </div>
+        `);
+
+      polygon.addTo(territoryLayerGroup);
+      bounds.extend(polygon.getBounds());
+
+      const centerLat = territory.centerLat || territory.center_lat;
+      const centerLon = territory.centerLon || territory.center_lon;
+      if (centerLat && centerLon) {
+        const label = L.divIcon({
+          className: '',
+          html: `<div style="
+            background: rgba(0,0,0,0.65);
+            color: #fff;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            pointer-events: none;
+          ">${ownerName}</div>`,
+          iconAnchor: [0, 0],
+        });
+        L.marker([centerLat, centerLon], { icon: label })
+          .addTo(territoryLayerGroup);
+      }
+    });
+
+    if (bounds.isValid()) {
+      territoryMap.fitBounds(bounds.pad(0.15));
+    }
+  } catch (error) {
+    console.error('Error loading territories:', error);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!getToken()) {
+    window.location.href = '/login';
+    return;
+  }
+
+  initializeTerritoryMap();
+  await loadUserProfile();
+  await Promise.all([loadRunHistory(), loadTerritories()]);
+});
