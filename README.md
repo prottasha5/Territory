@@ -1,41 +1,57 @@
-Territory-Based Running and Fitness Tracking Application
+# Territory-Based Running and Fitness Tracking Application
+
 A gamified running and fitness tracking application where users capture geographic territories through running activities.
 
-Features
-GPS-based running tracker with route visualization
-Territory capture when completing a closed running loop
-Map display showing owned territories
-Territory challenge/takeover functionality
-Leaderboard based on captured area or distance
-Running statistics (time, calories, distance)
-Activity history tracking
-JWT-based authentication system
-Technology Stack
-Backend: Node.js, Express.js
-Frontend: EJS, Leaflet.js, OpenStreetMap
-Database: MongoDB
-Geo Processing: Turf.js
-Authentication: JWT
-Deploy Full App (Login + API + Database)
-If you want /login, /signup, and all /api/* routes to work online, deploy this as a Node.js server (not GitHub Pages).
+## Features
 
-Recommended: Render (with MongoDB)
-This repository now includes render.yaml for Blueprint deployment.
+1. **GPS-based running tracker** with route visualization
+2. **Territory capture** when completing a closed running loop
+3. **Map display** showing owned territories
+4. **Territory challenge/takeover** functionality
+5. **Leaderboard** based on captured area or distance
+6. **Running statistics** (time, calories, distance)
+7. **Activity history** tracking
+8. **JWT-based authentication** system
 
-Push code to your GitHub repo (HishamXS420/Territory-Runner)
-In Render dashboard, click New + → Blueprint
-Select this repository and deploy
-After first deploy, open Render Shell for the web service and run:
+## Technology Stack
+
+1. **Backend**: Node.js, Express.js
+2. **Frontend**: EJS, Leaflet.js, OpenStreetMap
+3. **Database**: MongoDB
+4. **Geo Processing**: Turf.js
+5. **Authentication**: JWT
+
+## Deploy Full App (Login + API + Database)
+
+If you want `/login`, `/signup`, and all `/api/*` routes to work online, deploy this as a **Node.js server** (not GitHub Pages).
+
+### Recommended: Render (with MongoDB)
+
+This repository now includes `render.yaml` for Blueprint deployment.
+
+1. Push code to your GitHub repo (`HishamXS420/Territory-Runner`)
+2. In Render dashboard, click **New +** → **Blueprint**
+3. Select this repository and deploy
+4. After first deploy, open Render Shell for the web service and run:
+
+```bash
 node init-db.js
-Open your live URL:
-https://<your-service>.onrender.com/login
-https://<your-service>.onrender.com/signup
-https://<your-service>.onrender.com/
-Important Notes
-GitHub Pages only serves static files, so it cannot run this Express + MongoDB app.
-Use init-db.js in hosted environments to create tables only.
-Avoid setup-db.js in production, because it drops and recreates the database.
-Project Structure
+```
+
+5. Open your live URL:
+	1. `https://<your-service>.onrender.com/login`
+	2. `https://<your-service>.onrender.com/signup`
+	3. `https://<your-service>.onrender.com/`
+
+### Important Notes
+
+1. GitHub Pages only serves static files, so it cannot run this Express + MongoDB app.
+2. Use `init-db.js` in hosted environments to create tables only.
+3. Avoid `setup-db.js` in production, because it drops and recreates the database.
+
+## Project Structure
+
+```
 ├── config/
 │   ├── database.js          # Database connection configuration
 │   └── database.sql         # SQL schema for database setup
@@ -76,17 +92,28 @@ Project Structure
 ├── package.json             # Project dependencies
 ├── .env                     # Environment variables (configure these)
 └── README.md                # This file
-Installation & Setup
-Prerequisites
-Node.js (v14 or higher)
-MongoDB (v12 or higher)
-Git
-1. Clone and Setup
+```
+
+## Installation & Setup
+
+### Prerequisites
+
+1. Node.js (v14 or higher)
+2. MongoDB (v12 or higher)
+3. Git
+
+### 1. Clone and Setup
+
+```bash
 cd "d:\Study\4.1\Attachment\Territory App\Test4"
 npm install
-2. Database Setup
-Option A: Using MongoDB Command Line
+```
 
+### 2. Database Setup
+
+**Option A: Using MongoDB Command Line**
+
+```bash
 # Connect to MongoDB
 psql -U mongodb
 
@@ -98,11 +125,15 @@ CREATE DATABASE territory_running_app;
 
 # Run the schema setup
 \i config/database.sql
-Option B: Using Node.js Script (Coming soon)
+```
 
-3. Configure Environment Variables
-Edit .env file and set your configuration:
+**Option B: Using Node.js Script** (Coming soon)
 
+### 3. Configure Environment Variables
+
+Edit `.env` file and set your configuration:
+
+```env
 PORT=3000
 NODE_ENV=development
 
@@ -119,125 +150,182 @@ JWT_EXPIRE=7d
 
 # Application URL
 APP_URL=http://localhost:3000
-4. Install Dependencies
+```
+
+### 4. Install Dependencies
+
+```bash
 npm install
-5. Start the Server
+```
+
+### 5. Start the Server
+
+```bash
 # Development mode (with nodemon)
 npm run dev
 
 # Production mode
 npm start
-Server will be running at: http://localhost:3000
+```
 
-API Endpoints
-Authentication
-POST /api/auth/register - Register new user
-POST /api/auth/login - Login user
-GET /api/auth/profile - Get user profile (Protected)
-Running Sessions
-POST /api/run/start - Start a running session (Protected)
-POST /api/run/:sessionId/coordinate - Add GPS coordinate (Protected)
-POST /api/run/:sessionId/pause - Pause session (Protected)
-POST /api/run/:sessionId/finish - Finish session (Protected)
-GET /api/run/:sessionId - Get session details (Protected)
-GET /api/run/history/all - Get user's run history (Protected)
-Territories
-GET /api/territory/all - Get all territories
-GET /api/territory/bounds - Get territories in bounding box
-GET /api/territory/:territoryId - Get territory details
-GET /api/territory/user/territories - Get user's territories (Protected)
-Leaderboard
-GET /api/leaderboard/area - Get leaderboard by territory area
-GET /api/leaderboard/distance - Get leaderboard by distance
-GET /api/leaderboard/rank/area - Get user's rank by area (Protected)
-GET /api/leaderboard/rank/distance - Get user's rank by distance (Protected)
-Key Features Implemented
-1. GPS Tracking
-Continuous location tracking every 5 seconds
-High accuracy geolocation enabled
-Route visualization on Leaflet map
-2. Territory Capture
-Closed loop detection (start and end within 50 meters)
-Polygon conversion and area calculation
-Territory ownership and visualization
-3. Statistics Tracking
-Distance calculation
-Calorie estimation (based on average user weight)
-Running time tracking
-Area captured tracking
-4. Database Storage
-User authentication with bcrypt password hashing
-Running session history
-Route coordinate storage
-Territory polygon storage with ownership
-5. Leaderboard System
-Rank users by total territory area
-Rank users by total running distance
-User rank calculation
-Usage
-Starting a Run
-Click "Start Running" on the home page
-The app will request GPS permission
-Map will center on current location
-Run your route and complete a closed loop
-Click "Finish" to end the session
-If valid closed loop detected, territory is captured
-Viewing Territories
-All territories are displayed on the map as colored polygons
-Markers at center of each territory show owner username
-Home page shows recent running sessions
-Checking Leaderboard
-View top runners by territory area or distance
-See your current rank based on criteria
-Technical Details
-Closed Loop Detection
+Server will be running at: `http://localhost:3000`
+
+## API Endpoints
+
+### Authentication
+
+1. `POST /api/auth/register` - Register new user
+2. `POST /api/auth/login` - Login user
+3. `GET /api/auth/profile` - Get user profile (Protected)
+
+### Running Sessions
+
+1. `POST /api/run/start` - Start a running session (Protected)
+2. `POST /api/run/:sessionId/coordinate` - Add GPS coordinate (Protected)
+3. `POST /api/run/:sessionId/pause` - Pause session (Protected)
+4. `POST /api/run/:sessionId/finish` - Finish session (Protected)
+5. `GET /api/run/:sessionId` - Get session details (Protected)
+6. `GET /api/run/history/all` - Get user's run history (Protected)
+
+### Territories
+
+1. `GET /api/territory/all` - Get all territories
+2. `GET /api/territory/bounds` - Get territories in bounding box
+3. `GET /api/territory/:territoryId` - Get territory details
+4. `GET /api/territory/user/territories` - Get user's territories (Protected)
+
+### Leaderboard
+
+1. `GET /api/leaderboard/area` - Get leaderboard by territory area
+2. `GET /api/leaderboard/distance` - Get leaderboard by distance
+3. `GET /api/leaderboard/rank/area` - Get user's rank by area (Protected)
+4. `GET /api/leaderboard/rank/distance` - Get user's rank by distance (Protected)
+
+## Key Features Implemented
+
+### 1. GPS Tracking
+1. Continuous location tracking every 5 seconds
+2. High accuracy geolocation enabled
+3. Route visualization on Leaflet map
+
+### 2. Territory Capture
+1. Closed loop detection (start and end within 50 meters)
+2. Polygon conversion and area calculation
+3. Territory ownership and visualization
+
+### 3. Statistics Tracking
+1. Distance calculation
+2. Calorie estimation (based on average user weight)
+3. Running time tracking
+4. Area captured tracking
+
+### 4. Database Storage
+1. User authentication with bcrypt password hashing
+2. Running session history
+3. Route coordinate storage
+4. Territory polygon storage with ownership
+
+### 5. Leaderboard System
+1. Rank users by total territory area
+2. Rank users by total running distance
+3. User rank calculation
+
+## Usage
+
+### Starting a Run
+
+1. Click "Start Running" on the home page
+2. The app will request GPS permission
+3. Map will center on current location
+4. Run your route and complete a closed loop
+5. Click "Finish" to end the session
+6. If valid closed loop detected, territory is captured
+
+### Viewing Territories
+
+1. All territories are displayed on the map as colored polygons
+2. Markers at center of each territory show owner username
+3. Home page shows recent running sessions
+
+### Checking Leaderboard
+
+1. View top runners by territory area or distance
+2. See your current rank based on criteria
+
+## Technical Details
+
+### Closed Loop Detection
+
 A running route is considered a closed loop when:
+1. The distance between the start point and end point is ≤ 50 meters
+2. At least 2 coordinate points are recorded
 
-The distance between the start point and end point is ≤ 50 meters
-At least 2 coordinate points are recorded
-Area Calculation
-Uses Turf.js for polygon area calculation
-Polygon is created from running coordinates
-Area stored in square meters
-Distance Calculation
-Uses Haversine formula for geographic distance calculation
-Accumulates distance between all consecutive coordinate points
-Result stored in kilometers
-Calorie Estimation
-Formula: distance (km) × weight (kg) × 0.63
-Assumes average user weight of 70 kg
-Adjusted based on running speed and terrain
-Integration Notes
+### Area Calculation
+
+1. Uses Turf.js for polygon area calculation
+2. Polygon is created from running coordinates
+3. Area stored in square meters
+
+### Distance Calculation
+
+1. Uses Haversine formula for geographic distance calculation
+2. Accumulates distance between all consecutive coordinate points
+3. Result stored in kilometers
+
+### Calorie Estimation
+
+1. Formula: `distance (km) × weight (kg) × 0.63`
+2. Assumes average user weight of 70 kg
+3. Adjusted based on running speed and terrain
+
+## Integration Notes
+
 This application integrates with existing login/signup pages. The pages are implemented using:
+1. EJS templates for rendering
+2. Client-side JWT token storage in localStorage
+3. Token-based API authentication
 
-EJS templates for rendering
-Client-side JWT token storage in localStorage
-Token-based API authentication
 Login and signup pages should:
+1. Store JWT token in localStorage
+2. Redirect authenticated users to home page
+3. Handle token validation and refresh
 
-Store JWT token in localStorage
-Redirect authenticated users to home page
-Handle token validation and refresh
-Future Enhancements
- Territory conflict handling with automatic boundary adjustment
- Google/Apple login integration
- Real-time territory challenges
- Social features (friends, competitions)
- Advanced statistics and analytics
- Mobile app development
- Offline mode support
- Territory trading/purchasing
-Troubleshooting
-Database Connection Issues
-Check .env file settings and ensure MongoDB service is running.
+## Future Enhancements
 
-GPS Not Working
-Check browser's location permission settings
-Ensure HTTPS is used in production
-Some browsers require user interaction to enable geolocation
-Map Not Displaying
-Verify Leaflet.js and OpenStreetMap CDN links are loading
-Check browser console for errors
-Ensure map container has proper CSS styling
-Support
+1. [ ] Territory conflict handling with automatic boundary adjustment
+1. [ ] Google/Apple login integration
+1. [ ] Real-time territory challenges
+1. [ ] Social features (friends, competitions)
+1. [ ] Advanced statistics and analytics
+1. [ ] Mobile app development
+1. [ ] Offline mode support
+1. [ ] Territory trading/purchasing
+
+## Troubleshooting
+
+### Database Connection Issues
+
+Check `.env` file settings and ensure MongoDB service is running.
+
+### GPS Not Working
+
+1. Check browser's location permission settings
+2. Ensure HTTPS is used in production
+3. Some browsers require user interaction to enable geolocation
+
+### Map Not Displaying
+
+1. Verify Leaflet.js and OpenStreetMap CDN links are loading
+2. Check browser console for errors
+3. Ensure map container has proper CSS styling
+
+## Support
+
 For issues or questions, please refer to the documentation or contact the development team.
+
+## License
+
+MIT
+# TerritoryRunner
+# TerritoryRunner
+# TerritoryRunner
